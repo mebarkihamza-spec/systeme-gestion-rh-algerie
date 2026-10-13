@@ -294,7 +294,124 @@ Signature                                          Signature";
         ")->execute(['Comptable', 'Comptable', $comptableTemplate]);
     }
 
+    // Modèle CDD Chef d'atelier (ajouté aussi aux bases déjà initialisées)
+    $stmt = $pdo->prepare('SELECT COUNT(*) FROM contract_templates WHERE name = ?');
+    $stmt->execute(["Chef d'atelier - CDD"]);
+    if ((int) $stmt->fetchColumn() === 0) {
+        $pdo->prepare("
+            INSERT INTO contract_templates (name, position, template_text)
+            VALUES (?, ?, ?)
+        ")->execute(["Chef d'atelier - CDD", "Chef d'atelier", getChefAtelierCddTemplate()]);
+    }
+
     return $pdo;
+}
+
+function getChefAtelierCddTemplate()
+{
+    return "CONTRAT DE TRAVAIL À DURÉE DÉTERMINÉE
+
+Entre:
+L'entreprise « Groupe Bahia-Belgayed » - Pôle Vidange
+Siège : [COMPANY_ADDRESS] - RC : [RC] - NIF : [NIF] - N° employeur CNAS : [CNAS_EMPLOYER]
+Représentée par : [REPRESENTANT]
+
+Et:
+Monsieur / Madame : [EMPLOYEE_NAME]
+Né(e) le : [BIRTH_DATE] à [BIRTH_PLACE]
+Demeurant à : [ADDRESS]
+CIN N° : [CIN] - NIN : [NIN]
+
+Il a été convenu et arrêté ce qui suit :
+
+ARTICLE 1 : OBJET ET CADRE LÉGAL
+Le présent contrat est régi par la loi n° 90-11 du 21 avril 1990 relative aux relations de travail, l'ordonnance n° 97-03 relative à la durée légale du travail, la législation de sécurité sociale et le règlement intérieur de l'entreprise.
+
+ARTICLE 2 : NATURE ET MOTIF DU CONTRAT
+Contrat à durée déterminée à temps plein, conclu en application de l'article 12 de la loi n° 90-11.
+Motif : [CDD_REASON]
+
+ARTICLE 3 : POSTE ET MISSIONS
+Le salarié est engagé au poste de : Chef d'atelier (agent de maîtrise), département : [DEPARTMENT]
+Missions principales :
+- organiser et planifier le travail de l'atelier ;
+- encadrer et contrôler les techniciens et vidangeurs ;
+- garantir la qualité des prestations (huiles et filtres conformes aux préconisations constructeur, niveaux, serrages) ;
+- accueillir et conseiller la clientèle, établir les fiches d'intervention ;
+- gérer le stock d'huiles, de filtres et de consommables (inventaire mensuel) ;
+- faire respecter l'hygiène, la sécurité et le port des EPI ;
+- assurer le stockage et la remise à un collecteur agréé des huiles et filtres usagés (loi n° 01-19) ;
+- remettre un compte rendu d'activité quotidien à la Direction.
+
+ARTICLE 4 : DURÉE ET RENOUVELLEMENT
+Du [START_DATE] au [END_DATE] inclus, soit [DURATION].
+Renouvelable par avenant écrit signé avant le terme. La décision de renouvellement est notifiée au moins 15 jours avant l'échéance.
+
+ARTICLE 5 : PÉRIODE D'ESSAI
+Période d'essai de [TRIAL_PERIOD], jusqu'au [TRIAL_END_DATE] inclus (articles 18 à 20 de la loi n° 90-11).
+Pendant cette période, chaque partie peut rompre le contrat sans préavis ni indemnité.
+
+ARTICLE 6 : LIEU DE TRAVAIL
+Atelier Pôle Vidange, station [STATION]. Affectation temporaire possible dans une autre station du groupe.
+
+ARTICLE 7 : HORAIRE DE TRAVAIL
+40 heures par semaine, de 08h00 à 17h00 avec pause de 12h00 à 13h00, selon planning.
+Heures supplémentaires sur demande écrite, majorées d'au moins 50 %.
+
+ARTICLE 8 : RÉMUNÉRATION
+Salaire mensuel de base brut : [BASE_SALARY] DZD, plus primes et indemnités du régime interne.
+Versement : à la fin de chaque mois. Retenues légales : sécurité sociale et IRG.
+
+ARTICLE 9 : ASSURANCES SOCIALES
+Déclaration à la CNAS dès l'entrée en fonction (part salariale 9 %).
+Couverture complémentaire Axa Assurance : cotisation mensuelle de 1800 DZD déductible du salaire.
+
+ARTICLE 10 : CONGÉS
+2,5 jours ouvrables par mois de travail effectif. Indemnité compensatrice pour les jours non pris à l'échéance.
+
+ARTICLE 11 : OBLIGATIONS DU SALARIÉ
+Respect des horaires, du règlement intérieur et des consignes ; soin du matériel, des stocks et des fonds confiés ; non-concurrence pendant le contrat ; visite médicale d'embauche et contrôles périodiques.
+
+ARTICLE 12 : HYGIÈNE ET SÉCURITÉ
+L'employeur fournit les EPI ; le salarié les porte et les fait porter par son équipe (loi n° 88-07).
+
+ARTICLE 13 : CONFIDENTIALITÉ
+Secret sur les tarifs, fournisseurs, clientèle et chiffre d'affaires, y compris après la fin du contrat.
+
+ARTICLE 14 : DISCIPLINE
+Sanctions selon le règlement intérieur et les articles 73 à 73-4 de la loi n° 90-11.
+
+ARTICLE 15 : FIN DU CONTRAT
+À son terme sauf avenant ; pendant l'essai sans préavis ; par accord écrit ; pour faute grave ; par démission avec préavis de 15 jours ; autres cas de l'article 66 de la loi n° 90-11.
+Remise d'un certificat de travail et du solde de tout compte.
+
+ARTICLE 16 : LITIGES
+Règlement amiable, puis conciliation à l'inspection du travail, puis tribunal social compétent (loi n° 90-04).
+
+Fait à [LOCATION], le [DATE], en deux exemplaires.
+
+Pour l'entreprise :                                Pour le salarié :
+Signature et cachet                                « Lu et approuvé », signature";
+}
+
+/**
+ * Crée les alertes d'un contrat : fin de période d'essai et échéance du CDD.
+ * L'alerte d'échéance tombe 30 jours avant la fin pour laisser le temps
+ * de décider du renouvellement (notification au moins 15 jours avant).
+ */
+function createContractAlerts($pdo, $contractId, $employeeId, $endDate, $trialEndDate = null)
+{
+    $stmt = $pdo->prepare('INSERT INTO contract_alerts (contract_id, employee_id, alert_date) VALUES (?, ?, ?)');
+
+    if ($trialEndDate) {
+        $trialAlert = (new DateTime($trialEndDate))->modify('-15 days')->format('Y-m-d');
+        $stmt->execute([$contractId, $employeeId, $trialAlert]);
+    }
+
+    if ($endDate) {
+        $endAlert = (new DateTime($endDate))->modify('-30 days')->format('Y-m-d');
+        $stmt->execute([$contractId, $employeeId, $endAlert]);
+    }
 }
 
 function getStationIdForUser($pdo, $userId)
