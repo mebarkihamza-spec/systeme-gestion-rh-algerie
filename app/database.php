@@ -296,12 +296,12 @@ Signature                                          Signature";
 
     // Modèle CDD Chef d'atelier (ajouté aussi aux bases déjà initialisées)
     $stmt = $pdo->prepare('SELECT COUNT(*) FROM contract_templates WHERE name = ?');
-    $stmt->execute(["Chef d'atelier - CDD"]);
+    $stmt->execute(["Chef d'atelier - CDD (arabe)"]);
     if ((int) $stmt->fetchColumn() === 0) {
         $pdo->prepare("
             INSERT INTO contract_templates (name, position, template_text)
             VALUES (?, ?, ?)
-        ")->execute(["Chef d'atelier - CDD", "Chef d'atelier", getChefAtelierCddTemplate()]);
+        ")->execute(["Chef d'atelier - CDD (arabe)", "Chef d'atelier", getChefAtelierCddTemplate()]);
     }
 
     return $pdo;
@@ -309,89 +309,92 @@ Signature                                          Signature";
 
 function getChefAtelierCddTemplate()
 {
-    return "CONTRAT DE TRAVAIL À DURÉE DÉTERMINÉE
+    return "عقد عمل محدد المدة
 
-Entre:
-L'entreprise « Groupe Bahia-Belgayed » - Pôle Vidange
-Siège : [COMPANY_ADDRESS] - RC : [RC] - NIF : [NIF] - N° employeur CNAS : [CNAS_EMPLOYER]
-Représentée par : [REPRESENTANT]
+بين:
+مؤسسة مباركي معتز بالله (MEBARKI Mouatez Billah)
+النشاط: بيع زيوت التشحيم والشحوم الصناعية، تغيير الزيوت
+العنوان: دوار بلقايد، تعاونية الموحدين، القطعة رقم 78، بئر الجير، وهران - الهاتف: 0560 15 17 05
+السجل التجاري: [RC] - الرقم الجبائي: [NIF] - رقم المستخدم لدى CNAS: [CNAS_EMPLOYER]
+يمثلها: [REPRESENTANT]
+المدعو فيما يلي «المستخدم»
 
-Et:
-Monsieur / Madame : [EMPLOYEE_NAME]
-Né(e) le : [BIRTH_DATE] à [BIRTH_PLACE]
-Demeurant à : [ADDRESS]
-CIN N° : [CIN] - NIN : [NIN]
+و:
+السيد(ة): [EMPLOYEE_NAME]
+المولود(ة) بتاريخ: [BIRTH_DATE] بـ [BIRTH_PLACE]
+الساكن(ة) بـ: [ADDRESS]
+بطاقة التعريف الوطنية رقم: [CIN] - رقم التعريف الوطني: [NIN]
+المدعو(ة) فيما يلي «العامل»
 
-Il a été convenu et arrêté ce qui suit :
+تم الاتفاق والتراضي على ما يلي:
 
-ARTICLE 1 : OBJET ET CADRE LÉGAL
-Le présent contrat est régi par la loi n° 90-11 du 21 avril 1990 relative aux relations de travail, l'ordonnance n° 97-03 relative à la durée légale du travail, la législation de sécurité sociale et le règlement intérieur de l'entreprise.
+المادة 1: موضوع العقد وإطاره القانوني
+يخضع هذا العقد للقانون رقم 90-11 المؤرخ في 21 أفريل 1990 المتعلق بعلاقات العمل، والأمر رقم 97-03 المحدد للمدة القانونية للعمل، وتشريع الضمان الاجتماعي، والنظام الداخلي للمؤسسة.
 
-ARTICLE 2 : NATURE ET MOTIF DU CONTRAT
-Contrat à durée déterminée à temps plein, conclu en application de l'article 12 de la loi n° 90-11.
-Motif : [CDD_REASON]
+المادة 2: طبيعة العقد وسببه
+عقد عمل محدد المدة بالتوقيت الكامل، مبرم تطبيقاً للمادة 12 من القانون رقم 90-11.
+السبب: [CDD_REASON]
 
-ARTICLE 3 : POSTE ET MISSIONS
-Le salarié est engagé au poste de : Chef d'atelier (agent de maîtrise), département : [DEPARTMENT]
-Missions principales :
-- organiser et planifier le travail de l'atelier ;
-- encadrer et contrôler les techniciens et vidangeurs ;
-- garantir la qualité des prestations (huiles et filtres conformes aux préconisations constructeur, niveaux, serrages) ;
-- accueillir et conseiller la clientèle, établir les fiches d'intervention ;
-- gérer le stock d'huiles, de filtres et de consommables (inventaire mensuel) ;
-- faire respecter l'hygiène, la sécurité et le port des EPI ;
-- assurer le stockage et la remise à un collecteur agréé des huiles et filtres usagés (loi n° 01-19) ;
-- remettre un compte rendu d'activité quotidien à la Direction.
+المادة 3: المنصب والمهام
+يُوظف العامل بصفة: رئيس ورشة (صنف أعوان التحكم)، المصلحة: [DEPARTMENT]
+المهام الرئيسية:
+- تنظيم وتخطيط العمل اليومي للورشة؛
+- تأطير أعوان تغيير الزيوت ومراقبة عملهم؛
+- السهر على جودة الخدمات (زيوت ومصافٍ مطابقة لتوصيات الصانع، المستويات، الشد)؛
+- استقبال الزبائن وتوجيههم وإعداد بطاقات التدخل؛
+- تسيير مخزون الزيوت والمصافي واللوازم (جرد شهري)؛
+- فرض احترام قواعد النظافة والأمن وارتداء معدات الحماية الفردية؛
+- التخزين الآمن للزيوت والمصافي المستعملة وتسليمها لجامع معتمد (القانون رقم 01-19)؛
+- تقديم تقرير نشاط يومي للمسير.
 
-ARTICLE 4 : DURÉE ET RENOUVELLEMENT
-Du [START_DATE] au [END_DATE] inclus, soit [DURATION].
-Renouvelable par avenant écrit signé avant le terme. La décision de renouvellement est notifiée au moins 15 jours avant l'échéance.
+المادة 4: مدة العقد وتجديده
+من [START_DATE] إلى غاية [END_DATE]، أي لمدة [DURATION].
+قابل للتجديد بملحق كتابي يوقع قبل انقضائه. ويُبلغ قرار التجديد أو عدمه قبل 15 يوماً على الأقل من الأجل.
 
-ARTICLE 5 : PÉRIODE D'ESSAI
-Période d'essai de [TRIAL_PERIOD], jusqu'au [TRIAL_END_DATE] inclus (articles 18 à 20 de la loi n° 90-11).
-Pendant cette période, chaque partie peut rompre le contrat sans préavis ni indemnité.
+المادة 5: فترة التجربة
+فترة تجربة مدتها [TRIAL_PERIOD]، إلى غاية [TRIAL_END_DATE] (المواد من 18 إلى 20 من القانون رقم 90-11).
+يجوز لكل طرف فسخ العقد خلالها دون إشعار مسبق ولا تعويض.
 
-ARTICLE 6 : LIEU DE TRAVAIL
-Atelier Pôle Vidange, station [STATION]. Affectation temporaire possible dans une autre station du groupe.
+المادة 6: مكان العمل
+ورشة تغيير الزيوت، محطة [STATION]. ويمكن التعيين المؤقت بمحطة أخرى للمؤسسة.
 
-ARTICLE 7 : HORAIRE DE TRAVAIL
-40 heures par semaine, de 08h00 à 17h00 avec pause de 12h00 à 13h00, selon planning.
-Heures supplémentaires sur demande écrite, majorées d'au moins 50 %.
+المادة 7: مدة العمل
+40 ساعة في الأسبوع، من 08:00 إلى 17:00 مع استراحة من 12:00 إلى 13:00، حسب الجدول.
+الساعات الإضافية بطلب كتابي، وتُزاد بنسبة لا تقل عن 50%.
 
-ARTICLE 8 : RÉMUNÉRATION
-Salaire mensuel de base brut : [BASE_SALARY] DZD, plus primes et indemnités du régime interne.
-Versement : à la fin de chaque mois. Retenues légales : sécurité sociale et IRG.
+المادة 8: الأجر
+الأجر الشهري القاعدي: [BASE_SALARY] دج، بالإضافة إلى العلاوات والتعويضات حسب النظام الداخلي.
+يُدفع في نهاية كل شهر، ويخضع لاقتطاعات الضمان الاجتماعي والضريبة على الدخل الإجمالي.
 
-ARTICLE 9 : ASSURANCES SOCIALES
-Déclaration à la CNAS dès l'entrée en fonction (part salariale 9 %).
-Couverture complémentaire Axa Assurance : cotisation mensuelle de 1800 DZD déductible du salaire.
+المادة 9: الضمان الاجتماعي والتأمين التكميلي
+التصريح لدى CNAS فور الالتحاق بالعمل (حصة العامل 9%).
+التأمين التكميلي AXA Assurance: اشتراك شهري قدره 1800 دج يُقتطع من الأجر.
 
-ARTICLE 10 : CONGÉS
-2,5 jours ouvrables par mois de travail effectif. Indemnité compensatrice pour les jours non pris à l'échéance.
+المادة 10: العطل
+يومان ونصف (2,5) يوم عمل عن كل شهر عمل فعلي، وتعويض الأيام غير المستهلكة عند نهاية العقد.
 
-ARTICLE 11 : OBLIGATIONS DU SALARIÉ
-Respect des horaires, du règlement intérieur et des consignes ; soin du matériel, des stocks et des fonds confiés ; non-concurrence pendant le contrat ; visite médicale d'embauche et contrôles périodiques.
+المادة 11: التزامات العامل
+احترام المواقيت والنظام الداخلي والتعليمات؛ المحافظة على العتاد والمخزون والأموال المسلمة إليه؛ عدم المنافسة طيلة مدة العقد؛ الخضوع للفحص الطبي عند التوظيف والفحوص الدورية.
 
-ARTICLE 12 : HYGIÈNE ET SÉCURITÉ
-L'employeur fournit les EPI ; le salarié les porte et les fait porter par son équipe (loi n° 88-07).
+المادة 12: النظافة والأمن
+يوفر المستخدم معدات الحماية الفردية، ويلتزم العامل بارتدائها وفرض ارتدائها على فريقه (القانون رقم 88-07).
 
-ARTICLE 13 : CONFIDENTIALITÉ
-Secret sur les tarifs, fournisseurs, clientèle et chiffre d'affaires, y compris après la fin du contrat.
+المادة 13: السرية
+كتمان الأسعار والموردين والزبائن ورقم الأعمال، حتى بعد انتهاء العقد.
 
-ARTICLE 14 : DISCIPLINE
-Sanctions selon le règlement intérieur et les articles 73 à 73-4 de la loi n° 90-11.
+المادة 14: الانضباط
+العقوبات حسب النظام الداخلي والمواد من 73 إلى 73-4 من القانون رقم 90-11.
 
-ARTICLE 15 : FIN DU CONTRAT
-À son terme sauf avenant ; pendant l'essai sans préavis ; par accord écrit ; pour faute grave ; par démission avec préavis de 15 jours ; autres cas de l'article 66 de la loi n° 90-11.
-Remise d'un certificat de travail et du solde de tout compte.
+المادة 15: انتهاء العقد
+عند أجله ما لم يُجدد بملحق؛ خلال فترة التجربة دون إشعار؛ باتفاق كتابي؛ بسبب خطأ جسيم؛ بالاستقالة مع إشعار مسبق مدته 15 يوماً؛ والحالات الأخرى للمادة 66 من القانون رقم 90-11.
+تُسلم شهادة عمل ووصل تصفية كل حساب.
 
-ARTICLE 16 : LITIGES
-Règlement amiable, puis conciliation à l'inspection du travail, puis tribunal social compétent (loi n° 90-04).
+المادة 16: النزاعات
+التسوية الودية، ثم المصالحة لدى مفتشية العمل، ثم القسم الاجتماعي للمحكمة المختصة (القانون رقم 90-04).
 
-Fait à [LOCATION], le [DATE], en deux exemplaires.
+حُرر بـ [LOCATION] في [DATE]، في نسختين أصليتين.
 
-Pour l'entreprise :                                Pour le salarié :
-Signature et cachet                                « Lu et approuvé », signature";
+المستخدم (الإمضاء والختم)                         العامل (قرأت ووافقت، الإمضاء)";
 }
 
 /**
